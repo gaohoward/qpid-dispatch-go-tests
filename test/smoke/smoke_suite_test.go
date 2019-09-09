@@ -1,6 +1,7 @@
 package smoke
 
 import (
+	"fmt"
 	"testing"
 
 	_ "github.com/fgiorgetti/qpid-dispatch-go-tests/test"
@@ -15,8 +16,9 @@ func TestSmoke(t *testing.T) {
 }
 
 var _ = BeforeEach(func() {
+	fmt.Println("Before each Smoke Test")
 }, 60)
 
 var _ = AfterEach(func() {
-	//fmt.Println("After each Smoke Test")
+	fmt.Println("After each Smoke Test")
 }, 60)

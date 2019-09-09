@@ -1,6 +1,7 @@
 package integration_test
 
 import (
+	"fmt"
 	"testing"
 
 	_ "github.com/fgiorgetti/qpid-dispatch-go-tests/test"
@@ -15,9 +16,9 @@ func TestIntegration(t *testing.T) {
 }
 
 var _ = BeforeEach(func() {
-	//fmt.Println("Before each Integration test")
+	fmt.Println("Before each Integration test")
 }, 10)
 
 var _ = AfterEach(func() {
-	//fmt.Println("After each Integration test")
+	fmt.Println("After each Integration test")
 }, 10)
