@@ -11,12 +11,26 @@ import (
 var _ = ginkgo.Describe("OneInteriorDeployment", func() {
 
 	var (
-		f framework.Framework
-		ic v1alpha1.Interconnect
+		f *framework.Framework
+		ic *v1alpha1.InterconnectSpec
 		err error
 	)
 
-	SetupTopology(&f, &ic, err)
+	// Setup the topology
+	ginkgo.BeforeEach(func() {
+		f = framework.NewFramework("one-interior", framework.TestContext.GetContexts()[0])
+	})
+
+	// Deploy the Interconnect instance before running tests
+	ginkgo.JustBeforeEach(func() {
+		ic = CreateInterconnectSpec()
+		SetupTopology(f, ic)
+	})
+
+	// Clean up
+	ginkgo.AfterEach(func() {
+		f.AfterEach()
+	})
 
 	ginkgo.It("Validates deployment", func() {
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())

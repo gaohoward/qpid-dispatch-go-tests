@@ -82,20 +82,22 @@ type Framework struct {
 }
 
 // NewFramework creates a test framework
-func NewFramework(baseName string) *Framework {
+func NewFramework(baseName string, contexts ...string) *Framework {
 
 	f := &Framework{
 		BaseName: baseName,
 		ContextMap: make(map[string]*ContextData),
 	}
-	ginkgo.BeforeEach(f.BeforeEach)
-	ginkgo.AfterEach(f.AfterEach)
+
+	fmt.Printf("\n\n\n f instance = %p\n\n\n", f)
+
+	f.BeforeEach(contexts...)
 
 	return f
 }
 
 // BeforeEach gets clients and makes a namespace
-func (f *Framework) BeforeEach() {
+func (f *Framework) BeforeEach(contexts ...string) {
 
 	f.cleanupHandle = AddCleanupAction(f.AfterEach)
 
@@ -117,8 +119,9 @@ func (f *Framework) BeforeEach() {
 
 	// Loop through provided contexts (or use current-context)
 	// and loading all context info
-	for _, context := range TestContext.GetContexts() {
+	for _, context := range contexts {
 
+		fmt.Printf("\n\nCONTEXT = %s\n\n", context)
 		// Populating ContextMap with clients for each provided context
 		var clients ClientSet
 
@@ -133,6 +136,7 @@ func (f *Framework) BeforeEach() {
 		clientConfig, err := clientcmd.NewClientConfigFromBytes(bytes)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 		restConfig, err := clientConfig.ClientConfig()
+		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 		// Create the client instances
 		kubeClient, err := clientset.NewForConfig(restConfig)
@@ -154,6 +158,7 @@ func (f *Framework) BeforeEach() {
 		// Keep original label for now (maybe we can remove or rename later)
 		var namespace *corev1.Namespace
 		if !f.SkipNamespaceCreation {
+			fmt.Printf("CREATING NAMESPACE USING CONTEXT: %s", context)
 			namespace = generateNamespace(kubeClient, f.BaseName, namespaceLabels)
 		}
 		gomega.Expect(namespace).NotTo(gomega.BeNil())
@@ -180,6 +185,9 @@ func (f *Framework) BeforeEach() {
 
 	// setup the operator
 	err = f.Setup()
+	if err != nil {
+		f.AfterEach()
+	}
 	gomega.Expect(err).NotTo(gomega.HaveOccurred())
 }
 

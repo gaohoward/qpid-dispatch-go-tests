@@ -19,6 +19,7 @@ package framework
 import (
 	"flag"
 	"fmt"
+	"github.com/onsi/gomega"
 	"io/ioutil"
 	"os"
 
@@ -39,7 +40,6 @@ const (
 type TestContextType struct {
 	KubeConfig               string
 	KubeContexts             contextNames
-	KubeContext              string // TO BE REMOVED
 	CertDir                  string
 	Host                     string
 	RepoRoot                 string
@@ -88,6 +88,7 @@ func RegisterFlags() {
 	// Randomize specs as well as suites
 	config.GinkgoConfig.RandomizeAllSpecs = true
 
+	TestContext.KubeContexts = contextNames{}
 	flag.Var(&TestContext.KubeContexts, clientcmd.FlagContext, "kubeconfig context to use/override. If unset, will use value from 'current-context'. Multiple contexts can be provided by specifying it multiple times")
 	flag.BoolVar(&TestContext.DeleteNamespace, "delete-namespace", true, "If true tests will delete namespace after completion. It is only designed to make debugging easier, DO NOT turn it off by default.")
 	flag.BoolVar(&TestContext.DeleteNamespaceOnFailure, "delete-namespace-on-failure", true, "If true, framework will delete test namespace on failure. Used only during test debugging.")
@@ -172,6 +173,7 @@ func AfterReadingAllFlags(t *TestContextType) {
 // GetContexts returns a list of contexts from provided flags or the current-context if none.
 // If KubeConfig not provided or not generated, it returns nil.
 func (t TestContextType) GetContexts() []string {
+	fmt.Printf("\n\n\nCONTEXTS AVAILABLE = %s\n\n\n", t.KubeContexts)
 	if len(t.KubeContexts) > 0 {
 		return t.KubeContexts
 	}
@@ -181,5 +183,6 @@ func (t TestContextType) GetContexts() []string {
 		return []string{config.CurrentContext}
 	}
 
+	gomega.Expect(err).To(gomega.BeNil())
 	return nil
 }

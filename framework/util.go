@@ -53,7 +53,7 @@ func RestclientConfig(kubeContext string) (*clientcmdapi.Config, error) {
 
 // LoadConfig returns a config for a rest client.
 func LoadConfig() (*restclient.Config, error) {
-	c, err := RestclientConfig(TestContext.KubeContext)
+	c, err := RestclientConfig(TestContext.GetContexts()[0])
 	if err != nil {
 		if TestContext.KubeConfig == "" {
 			return restclient.InClusterConfig()

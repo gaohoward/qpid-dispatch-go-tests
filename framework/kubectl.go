@@ -52,8 +52,9 @@ func KubectlCmd(args ...string) *exec.Cmd {
 		defaultArgs = append(defaultArgs, "--"+clientcmd.RecommendedConfigPathFlag+"="+TestContext.KubeConfig)
 
 		// Reference the KubeContext
-		if TestContext.KubeContext != "" {
-			defaultArgs = append(defaultArgs, "--"+clientcmd.FlagContext+"="+TestContext.KubeContext)
+		// TODO Improve and eventually associate some methods with ContextData
+		if len(TestContext.KubeContexts) > 0 {
+			defaultArgs = append(defaultArgs, "--"+clientcmd.FlagContext+"="+(TestContext.KubeContexts)[0])
 		}
 
 	} else {
