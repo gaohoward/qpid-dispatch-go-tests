@@ -28,9 +28,10 @@ var _ = ginkgo.SynchronizedAfterSuite(func() {
 }, 10)
 
 // CreateInterconnect creates an Interconnect resource using the provided InterconnectSpec
-func CreateInterconnect(c *framework.ContextData, size int32, spec v1alpha1.InterconnectSpec) (*v1alpha1.Interconnect, error) {
-	return c.CreateInterconnect(c.Namespace, size, func(interconnect *v1alpha1.Interconnect) {
-		interconnect.Spec = spec
+func CreateInterconnect(c *framework.ContextData, size int32, name string, spec v1alpha1.InterconnectSpec) (*v1alpha1.Interconnect, error) {
+	return c.CreateInterconnect(c.Namespace, size, func(ic *v1alpha1.Interconnect) {
+		ic.Name = name
+		ic.Spec = spec
 	})
 }
 

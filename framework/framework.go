@@ -89,8 +89,6 @@ func NewFramework(baseName string, contexts ...string) *Framework {
 		ContextMap: make(map[string]*ContextData),
 	}
 
-	fmt.Printf("\n\n\n f instance = %p\n\n\n", f)
-
 	f.BeforeEach(contexts...)
 
 	return f
@@ -121,7 +119,6 @@ func (f *Framework) BeforeEach(contexts ...string) {
 	// and loading all context info
 	for _, context := range contexts {
 
-		fmt.Printf("\n\nCONTEXT = %s\n\n", context)
 		// Populating ContextMap with clients for each provided context
 		var clients ClientSet
 
@@ -158,7 +155,6 @@ func (f *Framework) BeforeEach(contexts ...string) {
 		// Keep original label for now (maybe we can remove or rename later)
 		var namespace *corev1.Namespace
 		if !f.SkipNamespaceCreation {
-			fmt.Printf("CREATING NAMESPACE USING CONTEXT: %s", context)
 			namespace = generateNamespace(kubeClient, f.BaseName, namespaceLabels)
 		}
 		gomega.Expect(namespace).NotTo(gomega.BeNil())
@@ -243,6 +239,8 @@ func (f *Framework) Teardown() error {
 	}
 
 	// Iterate through all contexts
+	fmt.Printf("\n\n\nTEAR DOWN!\n\n\n")
+
 	for _, contextData := range f.ContextMap {
 		err := contextData.Clients.KubeClient.CoreV1().ServiceAccounts(contextData.Namespace).Delete(qdrOperatorName, metav1.NewDeleteOptions(1))
 		if err != nil && !apierrors.IsNotFound(err) {
@@ -283,31 +281,31 @@ func (f *Framework) Setup() error {
 	for _, ctxData := range f.ContextMap {
 		err := ctxData.setupQdrServiceAccount()
 		if err != nil {
-			return fmt.Errorf("failed to setup qdr operator: %v", err)
+			return fmt.Errorf("failed to setup qdr operator [setupQdrServiceAccount]: %v", err)
 		}
 		err = ctxData.setupQdrRole()
 		if err != nil {
-			return fmt.Errorf("failed to setup qdr operator: %v", err)
+			return fmt.Errorf("failed to setup qdr operator [setupQdrRole]: %v", err)
 		}
 		err = ctxData.setupQdrClusterRole()
-		if err != nil {
-			return fmt.Errorf("failed to setup qdr operator: %v", err)
+		if err != nil && !strings.Contains(err.Error(), "already exists") {
+			return fmt.Errorf("failed to setup qdr operator [setupQdrClusterRole]: %T - %v", err, err)
 		}
 		err = ctxData.setupQdrRoleBinding()
 		if err != nil {
-			return fmt.Errorf("failed to setup qdr operator: %v", err)
+			return fmt.Errorf("failed to setup qdr operator [setupQdrRoleBinding]: %v", err)
 		}
 		err = ctxData.setupQdrClusterRoleBinding()
-		if err != nil {
-			return fmt.Errorf("failed to setup qdr operator: %v", err)
+		if err != nil && !strings.Contains(err.Error(), "already exists") {
+			return fmt.Errorf("failed to setup qdr operator [setupQdrClusterRoleBinding]: %v", err)
 		}
 		err = ctxData.setupQdrCrd()
-		if err != nil {
-			return fmt.Errorf("failed to setup qdr operator: %v", err)
+		if err != nil && !strings.Contains(err.Error(), "already exists") {
+			return fmt.Errorf("failed to setup qdr operator [setupQdrCrd]: %v", err)
 		}
 		err = ctxData.setupQdrDeployment()
 		if err != nil {
-			return fmt.Errorf("failed to setup qdr operator: %v", err)
+			return fmt.Errorf("failed to setup qdr operator [setupQdrDeployment]: %v", err)
 		}
 		err = WaitForDeployment(ctxData.Clients.KubeClient, ctxData.Namespace, "qdr-operator", 1, RetryInterval, Timeout)
 		if err != nil {

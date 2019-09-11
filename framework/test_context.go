@@ -173,7 +173,6 @@ func AfterReadingAllFlags(t *TestContextType) {
 // GetContexts returns a list of contexts from provided flags or the current-context if none.
 // If KubeConfig not provided or not generated, it returns nil.
 func (t TestContextType) GetContexts() []string {
-	fmt.Printf("\n\n\nCONTEXTS AVAILABLE = %s\n\n\n", t.KubeContexts)
 	if len(t.KubeContexts) > 0 {
 		return t.KubeContexts
 	}

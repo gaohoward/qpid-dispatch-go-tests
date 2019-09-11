@@ -1,4 +1,4 @@
-package integration
+package router_broker
 
 import (
 	"github.com/onsi/ginkgo"

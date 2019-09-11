@@ -2,8 +2,8 @@ package qdrmanagement
 
 import (
 	"encoding/json"
-	"github.com/interconnectedcloud/qdr-operator/test/e2e/framework"
-	entities2 "github.com/interconnectedcloud/qdr-operator/test/e2e/framework/qdrmanagement/entities"
+	"github.com/fgiorgetti/qpid-dispatch-go-tests/framework"
+	"github.com/fgiorgetti/qpid-dispatch-go-tests/framework/qdrmanagement/entities"
 	"reflect"
 	"time"
 )
@@ -18,50 +18,50 @@ var (
 
 // QdmanageQuery executes a "qdmanage query" command on the given pod
 // to retrieve all entities for the given <entity> type.
-func QdmanageQuery(f *framework.Framework, pod string, entity string) (string, error) {
+func QdmanageQuery(ctxData framework.ContextData, pod string, entity string) (string, error) {
 	command := append(queryCommand, entity)
-	kubeExec := framework.NewKubectlExecCommand(f, pod, timeout, command...)
+	kubeExec := framework.NewKubectlExecCommand(ctxData, pod, timeout, command...)
 	return kubeExec.Exec()
 }
 
 // QdmanageQueryConnections use qdmanage to query existing connections on the given pod
-func QdmanageQueryConnections(f *framework.Framework, pod string) ([]entities2.Connection, error) {
-	return QdmanageQueryConnectionsFilter(f, pod, nil)
+func QdmanageQueryConnections(ctxData framework.ContextData, pod string) ([]entities.Connection, error) {
+	return QdmanageQueryConnectionsFilter(ctxData, pod, nil)
 }
 
 // QdmanageQueryConnectionsFilter use qdmanage to query existing connections on the given pod
 // filtering entities using the provided filter function (if one is given)
-func QdmanageQueryConnectionsFilter(f *framework.Framework, pod string, filter func(entity interface{}) bool) ([]entities2.Connection, error) {
-	jsonString, err := QdmanageQuery(f, pod, entities2.Connection{}.GetEntityId())
-	var connections []entities2.Connection
+func QdmanageQueryConnectionsFilter(ctxData framework.ContextData, pod string, filter func(entity interface{}) bool) ([]entities.Connection, error) {
+	jsonString, err := QdmanageQuery(ctxData, pod, entities.Connection{}.GetEntityId())
+	var connections []entities.Connection
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonString), &connections)
 		filtered := FilterEntities(connections, filter)
 		connections = nil
 		for _, v := range filtered {
-			connections = append(connections, v.(entities2.Connection))
+			connections = append(connections, v.(entities.Connection))
 		}
 	}
 	return connections, err
 }
 
 // QdmanageQueryNodes use qdmanage to query existing nodes on the given pod
-func QdmanageQueryNodes(f *framework.Framework, pod string) ([]entities2.Node, error) {
-	return QdmanageQueryNodesFilter(f, pod, nil)
+func QdmanageQueryNodes(ctxData framework.ContextData, pod string) ([]entities.Node, error) {
+	return QdmanageQueryNodesFilter(ctxData, pod, nil)
 }
 
 // QdmanageQueryNodesFilter use qdmanage to query existing nodes on the given pod
 // filtering entities using the provided filter function (if one given)
-func QdmanageQueryNodesFilter(f *framework.Framework, pod string, filter func(entity interface{}) bool) ([]entities2.Node, error) {
+func QdmanageQueryNodesFilter(ctxData framework.ContextData, pod string, filter func(entity interface{}) bool) ([]entities.Node, error) {
 
-	jsonString, err := QdmanageQuery(f, pod, entities2.Node{}.GetEntityId())
-	var nodes []entities2.Node
+	jsonString, err := QdmanageQuery(ctxData, pod, entities.Node{}.GetEntityId())
+	var nodes []entities.Node
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonString), &nodes)
 		filtered := FilterEntities(nodes, filter)
 		nodes = nil
 		for _, v := range filtered {
-			nodes = append(nodes, v.(entities2.Node))
+			nodes = append(nodes, v.(entities.Node))
 		}
 	}
 	return nodes, err

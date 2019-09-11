@@ -15,6 +15,7 @@
 package framework
 
 import (
+	"fmt"
 	v1alpha1 "github.com/interconnectedcloud/qdr-operator/pkg/apis/interconnectedcloud/v1alpha1"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -27,13 +28,14 @@ type InterconnectCustomizer func(interconnect *v1alpha1.Interconnect)
 // CreateInterconnect creates an interconnect resource
 func (c *ContextData) CreateInterconnect(namespace string, size int32, fn ...InterconnectCustomizer) (*v1alpha1.Interconnect, error) {
 
+	const IC_PREFIX = "ic"
 	obj := &v1alpha1.Interconnect{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Interconnect",
 			APIVersion: "interconnectedcloud.github.io/v1alpha1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      c.UniqueName,
+			Name:      fmt.Sprintf("%s-%s", IC_PREFIX, c.UniqueName),
 			Namespace: namespace,
 		},
 		Spec: v1alpha1.InterconnectSpec{

@@ -112,7 +112,7 @@
   version = "v0.3.7"
 
 [[projects]]
-  digest = "1:d71abb215941d286ebe37f6a4efded2a6a00c2aa3895fcd93830a5c2a595bbf1"
+  digest = "1:330aebdb2fe2d06f81df2afa7fd0f26f9d02a27fa51c2044567e6927f67ff729"
   name = "github.com/interconnectedcloud/qdr-operator"
   packages = [
     "pkg/apis/interconnectedcloud/v1alpha1",
@@ -122,6 +122,7 @@
     "test/e2e/framework",
     "test/e2e/framework/ginkgowrapper",
     "test/e2e/framework/log",
+    "test/e2e/framework/qdrmanagement/entities",
   ]
   pruneopts = "UT"
   revision = "47a13436bc3d652ec9b92586c4b7323a87de1bc0"
@@ -566,9 +567,32 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/interconnectedcloud/qdr-operator/pkg/apis/interconnectedcloud/v1alpha1",
+    "github.com/interconnectedcloud/qdr-operator/pkg/client/clientset/versioned",
     "github.com/interconnectedcloud/qdr-operator/test/e2e/framework",
+    "github.com/interconnectedcloud/qdr-operator/test/e2e/framework/ginkgowrapper",
+    "github.com/interconnectedcloud/qdr-operator/test/e2e/framework/log",
+    "github.com/interconnectedcloud/qdr-operator/test/e2e/framework/qdrmanagement/entities",
     "github.com/onsi/ginkgo",
+    "github.com/onsi/ginkgo/config",
     "github.com/onsi/gomega",
+    "k8s.io/api/apps/v1",
+    "k8s.io/api/core/v1",
+    "k8s.io/api/rbac/v1",
+    "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1",
+    "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset",
+    "k8s.io/apimachinery/pkg/api/errors",
+    "k8s.io/apimachinery/pkg/apis/meta/v1",
+    "k8s.io/apimachinery/pkg/runtime",
+    "k8s.io/apimachinery/pkg/util/uuid",
+    "k8s.io/apimachinery/pkg/util/wait",
+    "k8s.io/client-go/kubernetes",
+    "k8s.io/client-go/rest",
+    "k8s.io/client-go/tools/clientcmd",
+    "k8s.io/client-go/tools/clientcmd/api",
+    "k8s.io/klog",
+    "k8s.io/utils/exec",
+    "sigs.k8s.io/controller-runtime/pkg/client",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

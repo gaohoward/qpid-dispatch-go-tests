@@ -1,8 +1,8 @@
 package qdrmanagement
 
 import (
-	"github.com/interconnectedcloud/qdr-operator/test/e2e/framework"
-	"github.com/interconnectedcloud/qdr-operator/test/e2e/framework/qdrmanagement/entities"
+	"github.com/fgiorgetti/qpid-dispatch-go-tests/framework"
+	"github.com/fgiorgetti/qpid-dispatch-go-tests/framework/qdrmanagement/entities"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"time"
@@ -11,11 +11,11 @@ import (
 // WaitForQdrNodesInPod attempts to retrieve the list of Node Entities
 // present on the given pod till the expected amount of nodes are present
 // or an error or timeout occurs.
-func WaitForQdrNodesInPod(f *framework.Framework, pod v1.Pod, expected int, retryInterval, timeout time.Duration) error {
+func WaitForQdrNodesInPod(ctxData framework.ContextData, pod v1.Pod, expected int, retryInterval, timeout time.Duration) error {
 	var nodes []entities.Node
 	// Retry logic to retrieve nodes
 	err := wait.Poll(retryInterval, timeout, func() (done bool, err error) {
-		if nodes, err = QdmanageQueryNodes(f, pod.Name); err != nil {
+		if nodes, err = QdmanageQueryNodes(ctxData, pod.Name); err != nil {
 			return false, err
 		}
 		if len(nodes) != expected {
@@ -27,8 +27,8 @@ func WaitForQdrNodesInPod(f *framework.Framework, pod v1.Pod, expected int, retr
 }
 
 // ListInterRouterConnectionsForPod will get all opened inter-router connections
-func ListInterRouterConnectionsForPod(f *framework.Framework, pod v1.Pod) ([]entities.Connection, error) {
-	conns, err := QdmanageQueryConnectionsFilter(f, pod.Name, func(entity interface{}) bool {
+func ListInterRouterConnectionsForPod(ctxData framework.ContextData, pod v1.Pod) ([]entities.Connection, error) {
+	conns, err := QdmanageQueryConnectionsFilter(ctxData, pod.Name, func(entity interface{}) bool {
 		conn := entity.(entities.Connection)
 		if conn.Role == "inter-router" && conn.Opened {
 			return true

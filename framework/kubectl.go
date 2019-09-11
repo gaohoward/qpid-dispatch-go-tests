@@ -31,7 +31,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	uexec "k8s.io/utils/exec"
 
-	e2elog "github.com/interconnectedcloud/qdr-operator/test/e2e/framework/log"
+	e2elog "github.com/fgiorgetti/qpid-dispatch-go-tests/framework/log"
 	//"github.com/onsi/gomega"
 )
 
@@ -41,7 +41,7 @@ const (
 )
 
 // KubectlCmd runs the kubectl executable through the wrapper script.
-func KubectlCmd(args ...string) *exec.Cmd {
+func KubectlCmd(ctxData ContextData, args ...string) *exec.Cmd {
 	defaultArgs := []string{}
 
 	// Reference a --server option so tests can run anywhere.
@@ -52,9 +52,8 @@ func KubectlCmd(args ...string) *exec.Cmd {
 		defaultArgs = append(defaultArgs, "--"+clientcmd.RecommendedConfigPathFlag+"="+TestContext.KubeConfig)
 
 		// Reference the KubeContext
-		// TODO Improve and eventually associate some methods with ContextData
 		if len(TestContext.KubeContexts) > 0 {
-			defaultArgs = append(defaultArgs, "--"+clientcmd.FlagContext+"="+(TestContext.KubeContexts)[0])
+			defaultArgs = append(defaultArgs, "--"+clientcmd.FlagContext+"="+ctxData.Id)
 		}
 
 	} else {
@@ -91,9 +90,9 @@ func LookForString(expectedString string, timeout time.Duration, fn func() strin
 }
 
 // LookForStringInLog looks for the given string in the log of a specific pod container
-func LookForStringInLog(ns, podName, container, expectedString string, timeout time.Duration) (result string, err error) {
+func LookForStringInLog(ctxData ContextData, podName, container, expectedString string, timeout time.Duration) (result string, err error) {
 	return LookForString(expectedString, timeout, func() string {
-		return RunKubectlOrDie("logs", podName, container, fmt.Sprintf("--namespace=%v", ns))
+		return RunKubectlOrDie(ctxData, "logs", podName, container, fmt.Sprintf("--namespace=%v", ctxData.Namespace))
 	})
 }
 
@@ -111,9 +110,9 @@ func LookForRegexp(expectedRegexp string, timeout time.Duration, fn func() strin
 }
 
 // LookForRegexpInLog looks for the given regexp in the log of a specific pod container
-func LookForRegexpInLog(ns, podName, container, expectedRegexp string, timeout time.Duration) (result string, err error) {
+func LookForRegexpInLog(ctxData ContextData, podName, container, expectedRegexp string, timeout time.Duration) (result string, err error) {
 	return LookForRegexp(expectedRegexp, timeout, func() string {
-		return RunKubectlOrDie("logs", podName, container, fmt.Sprintf("--namespace=%v", ns))
+		return RunKubectlOrDie(ctxData,"logs", podName, container, fmt.Sprintf("--namespace=%v", ctxData.Namespace))
 	})
 }
 
@@ -121,34 +120,30 @@ func LookForRegexpInLog(ns, podName, container, expectedRegexp string, timeout t
 // Add more functions to customize the builder as needed.
 type KubectlBuilder struct {
 	cmd     *exec.Cmd
+	ctxData ContextData
 	timeout <-chan time.Time
 }
 
 // NewKubectlCommand returns a KubectlBuilder for running kubectl.
-func NewKubectlCommand(args ...string) *KubectlBuilder {
-	return NewKubectlCommandTimeout(Timeout, args...)
+func NewKubectlCommand(ctxData ContextData, args ...string) *KubectlBuilder {
+	return NewKubectlCommandTimeout(ctxData, Timeout, args...)
 }
 
 // NewKubectlCommandTimeout returns a KubectlBuilder with a timeout defined, for running kubectl.
-func NewKubectlCommandTimeout(timeout time.Duration, args ...string) *KubectlBuilder {
+func NewKubectlCommandTimeout(ctxData ContextData, timeout time.Duration, args ...string) *KubectlBuilder {
 	b := new(KubectlBuilder)
-	b.cmd = KubectlCmd(args...)
+	b.cmd = KubectlCmd(ctxData, args...)
 	b.timeout = time.After(timeout)
 	return b
 }
 
 // NewKubectlExecCommand returns a KubectlBuilder prepared to execute a given command in a running pod.
-func NewKubectlExecCommand(f *Framework, namespace string, pod string, timeout time.Duration, commandArgs ...string) *KubectlBuilder {
+func NewKubectlExecCommand(ctxData ContextData, pod string, timeout time.Duration, commandArgs ...string) *KubectlBuilder {
 	defaultArgs := []string{}
 	// when namespace is empty, get first
-	if namespace == "" {
-		for _, ctxData := range f.ContextMap {
-			namespace = ctxData.Namespace
-		}
-	}
-	defaultArgs = append(defaultArgs, "--namespace", namespace, "exec", pod, "--")
+	defaultArgs = append(defaultArgs, "--namespace", ctxData.Namespace, "exec", pod, "--")
 	defaultArgs = append(defaultArgs, commandArgs...)
-	return NewKubectlCommandTimeout(timeout, defaultArgs...)
+	return NewKubectlCommandTimeout(ctxData, timeout, defaultArgs...)
 }
 
 // ExecOrDie runs the kubectl executable or dies if error occurs.
@@ -159,7 +154,7 @@ func (b KubectlBuilder) ExecOrDie() string {
 	if isTimeout(err) {
 		e2elog.Logf("Hit i/o timeout error, talking to the server 2s later to see if it's temporary.")
 		time.Sleep(2 * time.Second)
-		retryStr, retryErr := RunKubectl("version")
+		retryStr, retryErr := RunKubectl(b.ctxData,"version")
 		e2elog.Logf("stdout: %q", retryStr)
 		e2elog.Logf("err: %v", retryErr)
 	}
@@ -219,11 +214,11 @@ func (b KubectlBuilder) Exec() (string, error) {
 }
 
 // RunKubectlOrDie is a convenience wrapper over kubectlBuilder
-func RunKubectlOrDie(args ...string) string {
-	return NewKubectlCommand(args...).ExecOrDie()
+func RunKubectlOrDie(ctxData ContextData, args ...string) string {
+	return NewKubectlCommand(ctxData, args...).ExecOrDie()
 }
 
 // RunKubectl is a convenience wrapper over kubectlBuilder
-func RunKubectl(args ...string) (string, error) {
-	return NewKubectlCommand(args...).Exec()
+func RunKubectl(ctxData ContextData, args ...string) (string, error) {
+	return NewKubectlCommand(ctxData, args...).Exec()
 }

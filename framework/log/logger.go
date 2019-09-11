@@ -18,11 +18,10 @@ package log
 
 import (
 	"fmt"
+	"github.com/fgiorgetti/qpid-dispatch-go-tests/framework/ginkgowrapper"
 	"time"
 
 	"github.com/onsi/ginkgo"
-
-	"github.com/interconnectedcloud/qdr-operator/test/e2e/framework/ginkgowrapper"
 )
 
 func nowStamp() string {
