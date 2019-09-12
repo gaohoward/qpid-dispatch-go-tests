@@ -1,13 +1,12 @@
 package one_interior_test
 
 import (
+	"github.com/fgiorgetti/qpid-dispatch-go-tests/test"
+	"github.com/onsi/ginkgo"
 	"testing"
-
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 )
 
 func TestOneInterior(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "OneInterior Suite")
+	test.Initialize()
+	ginkgo.RunSpecs(t, "OneInterior Suite")
 }

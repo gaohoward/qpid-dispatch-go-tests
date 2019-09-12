@@ -1,13 +1,13 @@
 package two_interior_test
 
 import (
+	"github.com/fgiorgetti/qpid-dispatch-go-tests/test"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 )
 
 func TestTwoInterior(t *testing.T) {
-	RegisterFailHandler(Fail)
+	test.Initialize()
 	RunSpecs(t, "TwoInterior Suite")
 }

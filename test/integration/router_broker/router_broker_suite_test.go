@@ -1,13 +1,13 @@
 package router_broker_test
 
 import (
+	"github.com/fgiorgetti/qpid-dispatch-go-tests/test"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 )
 
 func TestRouterBroker(t *testing.T) {
-	RegisterFailHandler(Fail)
+	test.Initialize()
 	RunSpecs(t, "RouterBroker Suite")
 }

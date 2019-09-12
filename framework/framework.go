@@ -79,6 +79,7 @@ type Framework struct {
 
 	SkipNamespaceCreation bool // Whether to skip creating a namespace
 	cleanupHandle         CleanupActionHandle
+	afterEachDone         bool
 }
 
 // NewFramework creates a test framework
@@ -189,6 +190,12 @@ func (f *Framework) BeforeEach(contexts ...string) {
 
 // AfterEach deletes the namespace, after reading its events.
 func (f *Framework) AfterEach() {
+	// In case already executed, skip
+	if f.afterEachDone {
+		return
+	}
+
+	// Remove cleanup action
 	RemoveCleanupAction(f.cleanupHandle)
 
 	// teardown the operator
@@ -229,6 +236,7 @@ func (f *Framework) AfterEach() {
 		}
 	}()
 
+	f.afterEachDone = true
 }
 
 func (f *Framework) Teardown() error {
@@ -239,8 +247,6 @@ func (f *Framework) Teardown() error {
 	}
 
 	// Iterate through all contexts
-	fmt.Printf("\n\n\nTEAR DOWN!\n\n\n")
-
 	for _, contextData := range f.ContextMap {
 		err := contextData.Clients.KubeClient.CoreV1().ServiceAccounts(contextData.Namespace).Delete(qdrOperatorName, metav1.NewDeleteOptions(1))
 		if err != nil && !apierrors.IsNotFound(err) {

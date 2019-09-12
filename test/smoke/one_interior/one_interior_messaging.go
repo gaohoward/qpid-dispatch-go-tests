@@ -7,6 +7,6 @@ import (
 
 var _ = ginkgo.Describe("OneInteriorMessaging", func() {
 	ginkgo.It("Exchange messages", func() {
-		gomega.Expect(SmokeFramework).NotTo(gomega.BeNil())
+		gomega.Expect(Framework).NotTo(gomega.BeNil())
 	})
 })

@@ -74,7 +74,7 @@ var _ = ginkgo.JustBeforeEach(func() {
 	gomega.Expect(err).To(gomega.BeNil())
 	gomega.Expect(ic).NotTo(gomega.BeNil())
 
-	// Wait for QdrTwo deployment
+	// Wait for QdrOne deployment
 	err = framework.WaitForDeployment(ctxOne.Clients.KubeClient, ctxOne.Namespace, QdrOneName, 1, framework.RetryInterval, framework.Timeout)
 	gomega.Expect(err).To(gomega.BeNil())
 
@@ -89,6 +89,7 @@ var _ = ginkgo.JustBeforeEach(func() {
 
 })
 
+// After each test completes, run cleanup actions to save resources
 var _ = ginkgo.AfterEach(func() {
 	FrameworkQdrOne.AfterEach()
 	FrameworkQdrTwo.AfterEach()
