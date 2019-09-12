@@ -3,7 +3,6 @@ package one_interior
 import (
 	"fmt"
 	"github.com/fgiorgetti/qpid-dispatch-go-tests/framework"
-	"github.com/fgiorgetti/qpid-dispatch-go-tests/test"
 	"github.com/interconnectedcloud/qdr-operator/pkg/apis/interconnectedcloud/v1alpha1"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
@@ -21,11 +20,12 @@ func CreateInterconnectSpec() *v1alpha1.InterconnectSpec {
 		},
 	}
 }
+
 // SetupTopology will deploy interconnect using a predefined Spec
 func SetupTopology(f *framework.Framework, interconnect *v1alpha1.InterconnectSpec) {
 
 	// After operator deployed and before running tests
-	ic, err := test.CreateInterconnect(f.GetFirstContext(), 1, DeployName, *interconnect)
+	ic, err := f.GetFirstContext().CreateInterconnectFromSpec(1, DeployName, *interconnect)
 	gomega.Expect(err).To(gomega.BeNil())
 
 	// Verify deployment worked
@@ -37,7 +37,7 @@ func SetupTopology(f *framework.Framework, interconnect *v1alpha1.InterconnectSp
 
 var (
 	SmokeFramework *framework.Framework
-	SmokeIc *v1alpha1.InterconnectSpec
+	SmokeIc        *v1alpha1.InterconnectSpec
 )
 
 // Create the Framework instance to be used one_interior tests
@@ -47,7 +47,6 @@ var _ = ginkgo.BeforeEach(func() {
 	// Setup the topology
 	SmokeFramework = framework.NewFramework("one-interior", framework.TestContext.GetContexts()[0])
 }, 60)
-
 
 // Deploy Interconnect
 var _ = ginkgo.JustBeforeEach(func() {

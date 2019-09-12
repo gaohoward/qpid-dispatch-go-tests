@@ -25,6 +25,14 @@ import (
 // customizing an Interconnect resource before it is created.
 type InterconnectCustomizer func(interconnect *v1alpha1.Interconnect)
 
+// CreateInterconnectFromSpec creates an Interconnect resource using the provided InterconnectSpec
+func (c *ContextData) CreateInterconnectFromSpec(size int32, name string, spec v1alpha1.InterconnectSpec) (*v1alpha1.Interconnect, error) {
+	return c.CreateInterconnect(c.Namespace, size, func(ic *v1alpha1.Interconnect) {
+		ic.Name = name
+		ic.Spec = spec
+	})
+}
+
 // CreateInterconnect creates an interconnect resource
 func (c *ContextData) CreateInterconnect(namespace string, size int32, fn ...InterconnectCustomizer) (*v1alpha1.Interconnect, error) {
 

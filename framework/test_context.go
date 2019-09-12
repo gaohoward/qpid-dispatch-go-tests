@@ -117,7 +117,7 @@ func createKubeConfig(clientCfg *restclient.Config) *clientcmdapi.Config {
 	userNick := "user"
 	contextNick := "context"
 
-	config := clientcmdapi.NewConfig()
+	k8sConfig := clientcmdapi.NewConfig()
 
 	credentials := clientcmdapi.NewAuthInfo()
 	credentials.Token = clientCfg.BearerToken
@@ -129,7 +129,7 @@ func createKubeConfig(clientCfg *restclient.Config) *clientcmdapi.Config {
 	if len(credentials.ClientKey) == 0 {
 		credentials.ClientKeyData = clientCfg.TLSClientConfig.KeyData
 	}
-	config.AuthInfos[userNick] = credentials
+	k8sConfig.AuthInfos[userNick] = credentials
 
 	cluster := clientcmdapi.NewCluster()
 	cluster.Server = clientCfg.Host
@@ -138,15 +138,15 @@ func createKubeConfig(clientCfg *restclient.Config) *clientcmdapi.Config {
 		cluster.CertificateAuthorityData = clientCfg.CAData
 	}
 	cluster.InsecureSkipTLSVerify = clientCfg.Insecure
-	config.Clusters[clusterNick] = cluster
+	k8sConfig.Clusters[clusterNick] = cluster
 
 	context := clientcmdapi.NewContext()
 	context.Cluster = clusterNick
 	context.AuthInfo = userNick
-	config.Contexts[contextNick] = context
-	config.CurrentContext = contextNick
+	k8sConfig.Contexts[contextNick] = context
+	k8sConfig.CurrentContext = contextNick
 
-	return config
+	return k8sConfig
 }
 
 // AfterReadingAllFlags makes changes to the context after all flags
@@ -158,7 +158,8 @@ func AfterReadingAllFlags(t *TestContextType) {
 		if clusterConfig, err := restclient.InClusterConfig(); err == nil {
 			if tempFile, err := ioutil.TempFile(os.TempDir(), "kubeconfig-"); err == nil {
 				kubeConfig := createKubeConfig(clusterConfig)
-				clientcmd.WriteToFile(*kubeConfig, tempFile.Name())
+				err = clientcmd.WriteToFile(*kubeConfig, tempFile.Name())
+				//gomega.Expect(err).To(gomega.BeNil())
 				t.KubeConfig = tempFile.Name()
 				klog.Infof("Using a temporary kubeconfig file from in-cluster config : %s", tempFile.Name())
 			}
@@ -177,11 +178,17 @@ func (t TestContextType) GetContexts() []string {
 		return t.KubeContexts
 	}
 
-	config, err := clientcmd.LoadFromFile(t.KubeConfig)
+	kubeConfig, err := clientcmd.LoadFromFile(t.KubeConfig)
 	if err == nil {
-		return []string{config.CurrentContext}
+		return []string{kubeConfig.CurrentContext}
 	}
 
 	gomega.Expect(err).To(gomega.BeNil())
 	return nil
+}
+
+// ContextsAvailable returns the number of contexts available after
+// parsing command line arguments.
+func (t TestContextType) ContextsAvailable() int {
+	return len(t.GetContexts())
 }

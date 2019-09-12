@@ -16,6 +16,7 @@ package framework
 
 import (
 	"context"
+	"github.com/onsi/gomega"
 	"testing"
 	"time"
 
@@ -32,6 +33,16 @@ import (
 
 func (c *ContextData) GetDeployment(name string) (*appsv1.Deployment, error) {
 	return c.Clients.KubeClient.AppsV1().Deployments(c.Namespace).Get(name, metav1.GetOptions{})
+}
+
+func (c *ContextData) ListPodsForDeploymentName(name string) (*corev1.PodList, error) {
+	// Retrieves the deployment
+	deployment, err := c.GetDeployment(name)
+	gomega.Expect(err).To(gomega.BeNil())
+	gomega.Expect(deployment).NotTo(gomega.BeNil())
+
+	// Returns the list of pods
+	return c.ListPodsForDeployment(deployment)
 }
 
 func (c *ContextData) ListPodsForDeployment(deployment *appsv1.Deployment) (*corev1.PodList, error) {

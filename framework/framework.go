@@ -85,7 +85,7 @@ type Framework struct {
 func NewFramework(baseName string, contexts ...string) *Framework {
 
 	f := &Framework{
-		BaseName: baseName,
+		BaseName:   baseName,
 		ContextMap: make(map[string]*ContextData),
 	}
 

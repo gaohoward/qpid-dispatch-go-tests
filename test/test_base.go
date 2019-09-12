@@ -4,12 +4,18 @@ import (
 	"fmt"
 	"github.com/fgiorgetti/qpid-dispatch-go-tests/framework"
 	"github.com/fgiorgetti/qpid-dispatch-go-tests/framework/ginkgowrapper"
-	"github.com/interconnectedcloud/qdr-operator/pkg/apis/interconnectedcloud/v1alpha1"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 )
 
-// Unique and synchronized Setup
+// init Initializes Ginkgo and parse command line arguments
+func init() {
+	fmt.Printf("\n\n\n\n\n\nINIT HAS BEEN CALLED\n\n\n\n\n")
+	framework.HandleFlags()
+	gomega.RegisterFailHandler(ginkgowrapper.Fail)
+}
+
+// Before suite common setup (happens only once per test suite)
 var _ = ginkgo.SynchronizedBeforeSuite(func() []byte {
 	// Unique initialization (node 1 only)
 	fmt.Println("Base test setup - only happens once per test suite")
@@ -18,28 +24,10 @@ var _ = ginkgo.SynchronizedBeforeSuite(func() []byte {
 	// Initilization for each parallel node
 }, 10)
 
-
-// Unique and synchronized Teardown
+// After suite common teardown (happens only once per test suite)
 var _ = ginkgo.SynchronizedAfterSuite(func() {
 	// All nodes tear down
 }, func() {
 	// Node1 only tear down
 	fmt.Println("Base test teardown - only happens once per test suite")
 }, 10)
-
-// CreateInterconnect creates an Interconnect resource using the provided InterconnectSpec
-func CreateInterconnect(c *framework.ContextData, size int32, name string, spec v1alpha1.InterconnectSpec) (*v1alpha1.Interconnect, error) {
-	return c.CreateInterconnect(c.Namespace, size, func(ic *v1alpha1.Interconnect) {
-		ic.Name = name
-		ic.Spec = spec
-	})
-}
-
-func init() {
-	framework.HandleFlags()
-	gomega.RegisterFailHandler(ginkgowrapper.Fail)
-}
-
-func ContextsAvailable() int {
-	return len(framework.TestContext.GetContexts())
-}

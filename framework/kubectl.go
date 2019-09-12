@@ -112,7 +112,7 @@ func LookForRegexp(expectedRegexp string, timeout time.Duration, fn func() strin
 // LookForRegexpInLog looks for the given regexp in the log of a specific pod container
 func LookForRegexpInLog(ctxData ContextData, podName, container, expectedRegexp string, timeout time.Duration) (result string, err error) {
 	return LookForRegexp(expectedRegexp, timeout, func() string {
-		return RunKubectlOrDie(ctxData,"logs", podName, container, fmt.Sprintf("--namespace=%v", ctxData.Namespace))
+		return RunKubectlOrDie(ctxData, "logs", podName, container, fmt.Sprintf("--namespace=%v", ctxData.Namespace))
 	})
 }
 
@@ -154,7 +154,7 @@ func (b KubectlBuilder) ExecOrDie() string {
 	if isTimeout(err) {
 		e2elog.Logf("Hit i/o timeout error, talking to the server 2s later to see if it's temporary.")
 		time.Sleep(2 * time.Second)
-		retryStr, retryErr := RunKubectl(b.ctxData,"version")
+		retryStr, retryErr := RunKubectl(b.ctxData, "version")
 		e2elog.Logf("stdout: %q", retryStr)
 		e2elog.Logf("err: %v", retryErr)
 	}

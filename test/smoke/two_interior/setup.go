@@ -2,7 +2,6 @@ package two_interior
 
 import (
 	"github.com/fgiorgetti/qpid-dispatch-go-tests/framework"
-	"github.com/fgiorgetti/qpid-dispatch-go-tests/test"
 	"github.com/interconnectedcloud/qdr-operator/pkg/apis/interconnectedcloud/v1alpha1"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
@@ -23,6 +22,12 @@ const (
 // This topology is meant to be deployed on distinct contexts on the
 // same cluster.
 var _ = ginkgo.BeforeEach(func() {
+
+	//// Skip condition for test
+	//fmt.Printf("\n\n\n\n\nCONTEXTS: %v\n\n\n\n", framework.TestContext)
+	//if framework.TestContext.ContextsAvailable() < 2 {
+	//	ginkgo.Skip("Needs at least two contexts to execute TwoInterior setup")
+	//}
 
 	// Creating two distinct frameworks for same cluster/context
 	FrameworkQdrOne = framework.NewFramework("two-interior", framework.TestContext.GetContexts()[0])
@@ -65,7 +70,7 @@ var _ = ginkgo.JustBeforeEach(func() {
 	}
 
 	// Creating QdrOneSpec
-	ic, err := test.CreateInterconnect(ctxOne, 1, QdrOneName, *QdrOneSpec)
+	ic, err := ctxOne.CreateInterconnectFromSpec(1, QdrOneName, *QdrOneSpec)
 	gomega.Expect(err).To(gomega.BeNil())
 	gomega.Expect(ic).NotTo(gomega.BeNil())
 
@@ -74,7 +79,7 @@ var _ = ginkgo.JustBeforeEach(func() {
 	gomega.Expect(err).To(gomega.BeNil())
 
 	// Creating QdrTwoSpec
-	ic, err = test.CreateInterconnect(ctxTwo, 1, QdrTwoName, *QdrTwoSpec)
+	ic, err = ctxTwo.CreateInterconnectFromSpec(1, QdrTwoName, *QdrTwoSpec)
 	gomega.Expect(err).To(gomega.BeNil())
 	gomega.Expect(ic).NotTo(gomega.BeNil())
 
