@@ -35,17 +35,23 @@ var _ = Describe("TwoInterior", func() {
 		gomega.Expect(depList).NotTo(gomega.BeNil())
 	})
 
-	It("Query routers in the network on each pod", func() {
+	FIt("Query routers in the network on each pod", func() {
 		depQdrOne, err := ctx1.GetDeployment(QdrOneName)
 		gomega.Expect(err).To(gomega.BeNil())
 		gomega.Expect(depQdrOne).NotTo(gomega.BeNil())
 
 		podList, err := ctx1.ListPodsForDeployment(depQdrOne)
 		gomega.Expect(err).To(gomega.BeNil())
+		gomega.Expect(podList.Items).To(gomega.HaveLen(1))
 		for _, pod := range podList.Items {
- 			connections, err := qdrmanagement.ListInterRouterConnectionsForPod(*ctx1, pod)
+			err := qdrmanagement.WaitForQdrNodesInPod(*ctx1, pod, 2, framework.RetryInterval, framework.Timeout)
 			gomega.Expect(err).To(gomega.BeNil())
-			gomega.Expect(len(connections)).To(gomega.Equal(2))
+
+			nodes, err := qdrmanagement.QdmanageQueryNodes(*ctx1, pod.Name)
+ 			//connections, err := qdrmanagement.ListInterRouterConnectionsForPod(*ctx1, pod)
+			gomega.Expect(err).To(gomega.BeNil())
+			gomega.Expect(nodes).To(gomega.HaveLen(2))
+			//gomega.Expect(len(connections)).To(gomega.Equal(2))
 		}
 
 	})
