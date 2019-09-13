@@ -98,6 +98,11 @@ func (c *ContextData) GenerateNamespace() (*corev1.Namespace, error) {
 
 func deleteNamespace(client clientset.Interface, namespaceName string) error {
 
+	if !TestContext.DeleteNamespace {
+		e2elog.Logf("Skipping as namespaces are meant to be preserved")
+		return nil
+	}
+
 	return client.CoreV1().Namespaces().Delete(
 		namespaceName,
 		&metav1.DeleteOptions{})

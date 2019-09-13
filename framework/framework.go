@@ -78,7 +78,8 @@ type Framework struct {
 	ContextMap map[string]*ContextData
 
 	SkipNamespaceCreation bool // Whether to skip creating a namespace
-	cleanupHandle         CleanupActionHandle
+	cleanupHandleEach     CleanupActionHandle
+	cleanupHandleSuite    CleanupActionHandle
 	afterEachDone         bool
 }
 
@@ -98,7 +99,8 @@ func NewFramework(baseName string, contexts ...string) *Framework {
 // BeforeEach gets clients and makes a namespace
 func (f *Framework) BeforeEach(contexts ...string) {
 
-	f.cleanupHandle = AddCleanupAction(f.AfterEach)
+	f.cleanupHandleEach = AddCleanupAction(AfterEach, f.AfterEach)
+	f.cleanupHandleSuite = AddCleanupAction(AfterSuite, f.AfterSuite)
 
 	// Loop through contexts
 	// 1 - Set the current context
@@ -196,10 +198,10 @@ func (f *Framework) AfterEach() {
 	}
 
 	// Remove cleanup action
-	RemoveCleanupAction(f.cleanupHandle)
+	RemoveCleanupAction(AfterEach, f.cleanupHandleEach)
 
 	// teardown the operator
-	err := f.Teardown()
+	err := f.TeardownEach()
 	gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 	// DeleteNamespace at the very end in defer, to avoid any
@@ -239,14 +241,24 @@ func (f *Framework) AfterEach() {
 	f.afterEachDone = true
 }
 
-func (f *Framework) Teardown() error {
+// AfterSuite deletes the cluster level resources
+func (f *Framework) AfterSuite() {
+	// Remove cleanup action
+	RemoveCleanupAction(AfterSuite, f.cleanupHandleSuite)
+
+	// teardown suite
+	err := f.TeardownSuite()
+	gomega.Expect(err).NotTo(gomega.HaveOccurred())
+}
+
+func (f *Framework) TeardownEach() error {
 
 	// Skip the qdr-operator teardown if the operator image was not specified
 	if len(TestContext.OperatorImage) == 0 {
 		return nil
 	}
 
-	// Iterate through all contexts
+	// Iterate through all contexts and deleting namespace related resources
 	for _, contextData := range f.ContextMap {
 		err := contextData.Clients.KubeClient.CoreV1().ServiceAccounts(contextData.Namespace).Delete(qdrOperatorName, metav1.NewDeleteOptions(1))
 		if err != nil && !apierrors.IsNotFound(err) {
@@ -256,13 +268,32 @@ func (f *Framework) Teardown() error {
 		if err != nil && !apierrors.IsNotFound(err) {
 			return fmt.Errorf("failed to delete qdr-operator role: %v", err)
 		}
-		err = contextData.Clients.KubeClient.RbacV1().ClusterRoles().Delete(qdrOperatorName, metav1.NewDeleteOptions(1))
-		if err != nil && !apierrors.IsNotFound(err) {
-			return fmt.Errorf("failed to delete qdr-operator cluster role: %v", err)
-		}
 		err = contextData.Clients.KubeClient.RbacV1().RoleBindings(contextData.Namespace).Delete(qdrOperatorName, metav1.NewDeleteOptions(1))
 		if err != nil && !apierrors.IsNotFound(err) {
 			return fmt.Errorf("failed to delete qdr-operator role binding: %v", err)
+		}
+		err = contextData.Clients.KubeClient.AppsV1().Deployments(contextData.Namespace).Delete(qdrOperatorName, metav1.NewDeleteOptions(1))
+		if err != nil && !apierrors.IsNotFound(err) {
+			return fmt.Errorf("failed to delete qdr-operator deployment: %v", err)
+		}
+	}
+
+	e2elog.Logf("e2e teardown namespace successful")
+	return nil
+}
+
+func (f *Framework) TeardownSuite() error {
+
+	// Skip the qdr-operator teardown if the operator image was not specified
+	if len(TestContext.OperatorImage) == 0 {
+		return nil
+	}
+
+	// Iterate through all contexts
+	for _, contextData := range f.ContextMap {
+		err := contextData.Clients.KubeClient.RbacV1().ClusterRoles().Delete(qdrOperatorName, metav1.NewDeleteOptions(1))
+		if err != nil && !apierrors.IsNotFound(err) {
+			return fmt.Errorf("failed to delete qdr-operator cluster role: %v", err)
 		}
 		err = contextData.Clients.KubeClient.RbacV1().ClusterRoleBindings().Delete(qdrOperatorName, metav1.NewDeleteOptions(1))
 		if err != nil && !apierrors.IsNotFound(err) {
@@ -272,13 +303,9 @@ func (f *Framework) Teardown() error {
 		if err != nil && !apierrors.IsNotFound(err) {
 			return fmt.Errorf("failed to delete qdr-operator crd: %v", err)
 		}
-		err = contextData.Clients.KubeClient.AppsV1().Deployments(contextData.Namespace).Delete(qdrOperatorName, metav1.NewDeleteOptions(1))
-		if err != nil && !apierrors.IsNotFound(err) {
-			return fmt.Errorf("failed to delete qdr-operator deployment: %v", err)
-		}
 	}
 
-	e2elog.Logf("e2e teardown succesful")
+	e2elog.Logf("e2e teardown suite successful")
 	return nil
 }
 

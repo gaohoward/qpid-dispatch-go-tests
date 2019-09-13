@@ -23,12 +23,6 @@ const (
 // same cluster.
 var _ = ginkgo.BeforeEach(func() {
 
-	//// Skip condition for test
-	//fmt.Printf("\n\n\n\n\nCONTEXTS: %v\n\n\n\n", framework.TestContext)
-	//if framework.TestContext.ContextsAvailable() < 2 {
-	//	ginkgo.Skip("Needs at least two contexts to execute TwoInterior setup")
-	//}
-
 	// Creating two distinct frameworks for same cluster/context
 	FrameworkQdrOne = framework.NewFramework("two-interior", framework.TestContext.GetContexts()[0])
 	FrameworkQdrTwo = framework.NewFramework("two-interior", framework.TestContext.GetContexts()[0])

@@ -26,5 +26,6 @@ var _ = ginkgo.SynchronizedAfterSuite(func() {
 	// All nodes tear down
 }, func() {
 	// Node1 only tear down
-	framework.RunCleanupActions()
+	framework.RunCleanupActions(framework.AfterEach)
+	framework.RunCleanupActions(framework.AfterSuite)
 }, 10)

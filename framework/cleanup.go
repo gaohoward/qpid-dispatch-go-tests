@@ -21,37 +21,59 @@ import "sync"
 // CleanupActionHandle is an integer pointer type for handling cleanup action
 type CleanupActionHandle *int
 
-var cleanupActionsLock sync.Mutex
-var cleanupActions = map[CleanupActionHandle]func(){}
+// Action type to be enqueued
+type ActionType int
+const (
+	AfterEach ActionType = iota
+	AfterSuite
+)
 
-// AddCleanupAction installs a function that will be called in the event of the
-// whole test being terminated.  This allows arbitrary pieces of the overall
-// test to hook into SynchronizedAfterSuite().
-func AddCleanupAction(fn func()) CleanupActionHandle {
+var cleanupActionsLock sync.Mutex
+var cleanupActionsEach = map[CleanupActionHandle]func(){}
+var cleanupActionsSuite = map[CleanupActionHandle]func(){}
+
+// AddCleanupAction installs a function that will be called in the event of
+// completion of a test Spec or a test Suite.  This allows arbitrary pieces of the overall
+// test to hook into AfterEach() and SynchronizedAfterSuite().
+func AddCleanupAction(action ActionType, fn func()) CleanupActionHandle {
 	p := CleanupActionHandle(new(int))
 	cleanupActionsLock.Lock()
 	defer cleanupActionsLock.Unlock()
-	cleanupActions[p] = fn
+	switch action {
+	case AfterEach:
+		cleanupActionsEach[p] = fn
+	case AfterSuite:
+		cleanupActionsSuite[p] = fn
+	default:
+		cleanupActionsEach[p] = fn
+	}
 	return p
 }
 
 // RemoveCleanupAction removes a function that was installed by
 // AddCleanupAction.
-func RemoveCleanupAction(p CleanupActionHandle) {
+func RemoveCleanupAction(action ActionType, p CleanupActionHandle) {
 	cleanupActionsLock.Lock()
 	defer cleanupActionsLock.Unlock()
-	delete(cleanupActions, p)
+	switch action {
+	case AfterEach:
+		delete(cleanupActionsEach, p)
+	case AfterSuite:
+		delete(cleanupActionsSuite, p)
+	default:
+		delete(cleanupActionsEach, p)
+	}
 }
 
 // RunCleanupActions runs all functions installed by AddCleanupAction.  It does
 // not remove them (see RemoveCleanupAction) but it does run unlocked, so they
 // may remove themselves.
-func RunCleanupActions() {
+func RunCleanupActions(action ActionType) {
 	list := []func(){}
 	func() {
 		cleanupActionsLock.Lock()
 		defer cleanupActionsLock.Unlock()
-		for _, fn := range cleanupActions {
+		for _, fn := range cleanupActionsEach {
 			list = append(list, fn)
 		}
 	}()
