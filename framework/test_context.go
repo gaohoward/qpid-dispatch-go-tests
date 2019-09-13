@@ -55,7 +55,7 @@ type TestContextType struct {
 	CleanStart               bool
 }
 
-// TestContext should be used by all tests to access common context data.
+// TestContext should be used by all tests to access validation context data.
 var TestContext TestContextType
 
 // Type to hold array of contexts

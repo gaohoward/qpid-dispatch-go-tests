@@ -13,7 +13,7 @@ func Initialize() {
 	gomega.RegisterFailHandler(ginkgowrapper.Fail)
 }
 
-// Before suite common setup (happens only once per test suite)
+// Before suite validation setup (happens only once per test suite)
 var _ = ginkgo.SynchronizedBeforeSuite(func() []byte {
 	// Unique initialization (node 1 only)
 	return nil
@@ -21,7 +21,7 @@ var _ = ginkgo.SynchronizedBeforeSuite(func() []byte {
 	// Initialization for each parallel node
 }, 10)
 
-// After suite common teardown (happens only once per test suite)
+// After suite validation teardown (happens only once per test suite)
 var _ = ginkgo.SynchronizedAfterSuite(func() {
 	// All nodes tear down
 }, func() {
