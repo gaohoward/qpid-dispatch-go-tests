@@ -19,6 +19,7 @@ package framework
 import (
 	"bytes"
 	"fmt"
+	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/framework/log"
 	"net"
 	"net/url"
 	"os/exec"
@@ -31,7 +32,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	uexec "k8s.io/utils/exec"
 
-	e2elog "github.com/fgiorgetti/qpid-dispatch-go-tests/framework/log"
 	//"github.com/onsi/gomega"
 )
 
@@ -152,11 +152,11 @@ func (b KubectlBuilder) ExecOrDie() string {
 	// In case of i/o timeout error, try talking to the apiserver again after 2s before dying.
 	// Note that we're still dying after retrying so that we can get visibility to triage it further.
 	if isTimeout(err) {
-		e2elog.Logf("Hit i/o timeout error, talking to the server 2s later to see if it's temporary.")
+		log.Logf("Hit i/o timeout error, talking to the server 2s later to see if it's temporary.")
 		time.Sleep(2 * time.Second)
 		retryStr, retryErr := RunKubectl(b.ctxData, "version")
-		e2elog.Logf("stdout: %q", retryStr)
-		e2elog.Logf("err: %v", retryErr)
+		log.Logf("stdout: %q", retryStr)
+		log.Logf("err: %v", retryErr)
 	}
 	ExpectNoError(err)
 	return str
@@ -196,7 +196,7 @@ func (b KubectlBuilder) Exec() (string, error) {
 			var rc = 127
 			if ee, ok := err.(*exec.ExitError); ok {
 				rc = int(ee.Sys().(syscall.WaitStatus).ExitStatus())
-				e2elog.Logf("rc: %d", rc)
+				log.Logf("rc: %d", rc)
 			}
 			return "", uexec.CodeExitError{
 				Err:  fmt.Errorf("error running %v:\nCommand stdout:\n%v\nstderr:\n%v\nerror:\n%v", cmd, cmd.Stdout, cmd.Stderr, err),

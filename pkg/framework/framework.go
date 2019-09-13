@@ -16,6 +16,7 @@ package framework
 
 import (
 	"fmt"
+	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/framework/log"
 	"strings"
 	"time"
 
@@ -25,7 +26,6 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	e2elog "github.com/fgiorgetti/qpid-dispatch-go-tests/framework/log"
 	qdrclient "github.com/interconnectedcloud/qdr-operator/pkg/client/clientset/versioned"
 	apiextv1b1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	apiextension "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
@@ -234,7 +234,7 @@ func (f *Framework) AfterEach() {
 						namespaceKey, clusterIdx, namespaceErr, namespaceErr))
 				}
 			}
-			e2elog.Failf(strings.Join(messages, ","))
+			log.Failf(strings.Join(messages, ","))
 		}
 	}()
 
@@ -278,7 +278,7 @@ func (f *Framework) TeardownEach() error {
 		}
 	}
 
-	e2elog.Logf("e2e teardown namespace successful")
+	log.Logf("e2e teardown namespace successful")
 	return nil
 }
 
@@ -305,7 +305,7 @@ func (f *Framework) TeardownSuite() error {
 		}
 	}
 
-	e2elog.Logf("e2e teardown suite successful")
+	log.Logf("e2e teardown suite successful")
 	return nil
 }
 

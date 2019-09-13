@@ -18,7 +18,7 @@ package log
 
 import (
 	"fmt"
-	"github.com/fgiorgetti/qpid-dispatch-go-tests/framework/ginkgowrapper"
+	ginkgowrapper2 "github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/framework/ginkgowrapper"
 	"time"
 
 	"github.com/onsi/ginkgo"
@@ -47,5 +47,5 @@ func Failf(format string, args ...interface{}) {
 func FailfWithOffset(offset int, format string, args ...interface{}) {
 	msg := fmt.Sprintf(format, args...)
 	log("INFO", msg)
-	ginkgowrapper.Fail(nowStamp()+": "+msg, 1+offset)
+	ginkgowrapper2.Fail(nowStamp()+": "+msg, 1+offset)
 }

@@ -18,7 +18,7 @@ package framework
 
 import (
 	"fmt"
-	e2elog "github.com/fgiorgetti/qpid-dispatch-go-tests/framework/log"
+	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/framework/log"
 	"sort"
 
 	"k8s.io/apimachinery/pkg/util/uuid"
@@ -87,7 +87,7 @@ func ExpectNoError(err error, explain ...interface{}) {
 // (for example, for call chain f -> g -> ExpectNoErrorWithOffset(1, ...) error would be logged for "f").
 func ExpectNoErrorWithOffset(offset int, err error, explain ...interface{}) {
 	if err != nil {
-		e2elog.Logf("Unexpected error occurred: %v", err)
+		log.Logf("Unexpected error occurred: %v", err)
 	}
 	gomega.ExpectWithOffset(1+offset, err).NotTo(gomega.HaveOccurred(), explain...)
 }
@@ -100,7 +100,7 @@ func ExpectNoErrorWithRetries(fn func() error, maxRetries int, explain ...interf
 		if err == nil {
 			return
 		}
-		e2elog.Logf("(Attempt %d of %d) Unexpected error occurred: %v", i+1, maxRetries, err)
+		log.Logf("(Attempt %d of %d) Unexpected error occurred: %v", i+1, maxRetries, err)
 	}
 	gomega.ExpectWithOffset(1, err).NotTo(gomega.HaveOccurred(), explain...)
 }

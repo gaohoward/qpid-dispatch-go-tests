@@ -1,7 +1,7 @@
 package two_interior
 
 import (
-	"github.com/fgiorgetti/qpid-dispatch-go-tests/framework"
+	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/framework"
 	"github.com/interconnectedcloud/qdr-operator/pkg/apis/interconnectedcloud/v1alpha1"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"

@@ -16,7 +16,7 @@ package framework
 
 import (
 	"fmt"
-	e2elog "github.com/fgiorgetti/qpid-dispatch-go-tests/framework/log"
+	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/framework/log"
 	"strings"
 	"sync"
 	"time"
@@ -99,7 +99,7 @@ func (c *ContextData) GenerateNamespace() (*corev1.Namespace, error) {
 func deleteNamespace(client clientset.Interface, namespaceName string) error {
 
 	if !TestContext.DeleteNamespace {
-		e2elog.Logf("Skipping as namespaces are meant to be preserved")
+		log.Logf("Skipping as namespaces are meant to be preserved")
 		return nil
 	}
 
@@ -115,11 +115,11 @@ func (c *ContextData) DeleteNamespace(ns *corev1.Namespace) []error {
 	if err := deleteNamespace(c.Clients.KubeClient, ns.Name); err != nil {
 		switch {
 		case apierrors.IsNotFound(err):
-			e2elog.Logf("Namespace was already deleted")
+			log.Logf("Namespace was already deleted")
 		case apierrors.IsConflict(err):
-			e2elog.Logf("Namespace scheduled for deletion, resources being purged")
+			log.Logf("Namespace scheduled for deletion, resources being purged")
 		default:
-			e2elog.Logf("Failed deleting namespace")
+			log.Logf("Failed deleting namespace")
 			errors = append(errors, err)
 		}
 	}
@@ -163,7 +163,7 @@ OUTER:
 			defer wg.Done()
 			defer ginkgo.GinkgoRecover()
 			gomega.Expect(c.CoreV1().Namespaces().Delete(nsName, nil)).To(gomega.Succeed())
-			e2elog.Logf("namespace : %v api call to delete is complete ", nsName)
+			log.Logf("namespace : %v api call to delete is complete ", nsName)
 		}(item.Name)
 	}
 	wg.Wait()

@@ -1,7 +1,7 @@
 package one_interior
 
 import (
-	"github.com/fgiorgetti/qpid-dispatch-go-tests/framework"
+	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/framework"
 	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/validation/qpiddispatch/management"
 	"github.com/onsi/ginkgo"
 )

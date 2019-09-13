@@ -1,8 +1,8 @@
 package management
 
 import (
-	"github.com/fgiorgetti/qpid-dispatch-go-tests/framework"
-	"github.com/fgiorgetti/qpid-dispatch-go-tests/framework/qdrmanagement"
+	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/framework"
+	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/framework/qdrmanagement"
 	"github.com/onsi/gomega"
 )
 

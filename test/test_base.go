@@ -1,8 +1,8 @@
 package test
 
 import (
-	"github.com/fgiorgetti/qpid-dispatch-go-tests/framework"
-	"github.com/fgiorgetti/qpid-dispatch-go-tests/framework/ginkgowrapper"
+	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/framework"
+	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/framework/ginkgowrapper"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 )
