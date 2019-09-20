@@ -3,11 +3,10 @@ package one_interior
 import (
 	"fmt"
 	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/api/client/amqp"
-	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/api/client/amqp/qeclients/python"
+	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/api/client/amqp/qeclients"
 	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/framework"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
-	"time"
 )
 
 var _ = ginkgo.Describe("OneInteriorMessaging", func() {
@@ -20,6 +19,13 @@ var _ = ginkgo.Describe("OneInteriorMessaging", func() {
 		err      error
 	)
 
+	const (
+		// The message body to be used
+		MessageBody = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		// Amount of messages to exchange
+		MessageCount = 100
+	)
+
 	// Run the clients
 	ginkgo.JustBeforeEach(func() {
 		ctx = Framework.GetFirstContext()
@@ -28,15 +34,11 @@ var _ = ginkgo.Describe("OneInteriorMessaging", func() {
 		url = fmt.Sprintf("amqp://%s:5672/one_interior_messaging", DeployName)
 
 		// Building sender client
-		senderBuilder := &python.AmqpPythonSenderBuilder{}
-		senderBuilder.New("sender", *ctx, url)
-		sender, err = senderBuilder.Timeout(60).Messages(100).MessageContent("ABCDEFG").Build()
+		sender, err = qeclients.NewAmqpSender(qeclients.Python, "sender", *ctx, url, MessageCount, MessageBody)
 		gomega.Expect(err).To(gomega.BeNil())
 
 		// Building receiver client
-		receiverBuilder := &python.AmqpPythonReceiverBuilder{}
-		receiverBuilder.New("receiver", *ctx, url)
-		receiver, err = receiverBuilder.Timeout(60).Messages(100).Build()
+		receiver, err = qeclients.NewAmqpReceiver(qeclients.Python, "receiver", *ctx, url, MessageCount)
 		gomega.Expect(err).To(gomega.BeNil())
 	})
 
@@ -44,12 +46,12 @@ var _ = ginkgo.Describe("OneInteriorMessaging", func() {
 		// Deploying clients
 		err = sender.Deploy()
 		gomega.Expect(err).To(gomega.BeNil())
-
 		err = receiver.Deploy()
 		gomega.Expect(err).To(gomega.BeNil())
 
-		// TODO Add a "Wait" method to amqp.Client
-		time.Sleep(30 * time.Second)
+		// Waiting till client completes (or is interrupted)
+		sender.Wait()
+		receiver.Wait()
 
 		// Validating results
 		senderResult := sender.Result()
@@ -60,7 +62,7 @@ var _ = ginkgo.Describe("OneInteriorMessaging", func() {
 		gomega.Expect(receiverResult).NotTo(gomega.BeNil())
 
 		// Validate sent/received messages
-		gomega.Expect(senderResult.Delivered).To(gomega.Equal(100))
-		gomega.Expect(receiverResult.Delivered).To(gomega.Equal(100))
+		gomega.Expect(senderResult.Delivered).To(gomega.Equal(MessageCount))
+		gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount))
 	})
 })

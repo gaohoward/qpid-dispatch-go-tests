@@ -11,6 +11,7 @@ import (
 	"k8s.io/api/core/v1"
 	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sync"
+	"time"
 )
 
 // Common implementation for Clients running in containers
@@ -126,4 +127,38 @@ func (a *AmqpClientCommon) Result() amqp.ResultData {
 	return result
 }
 
+// Wait Waits for client to complete running (successfully or not), until pre-defined client's timeout.
+func (a *AmqpClientCommon) Wait() amqp.ClientStatus {
+	return a.WaitFor(a.Timeout)
+}
 
+// WaitFor Waits for client to complete running (successfully or not), until given timeout.
+func (a *AmqpClientCommon) WaitFor(secs int) amqp.ClientStatus {
+	return a.WaitForStatus(secs, amqp.Success, amqp.Error, amqp.Timeout, amqp.Interrupted)
+}
+
+// WaitForStatus Waits till client status matches one of the given statuses or till it times out
+func (a *AmqpClientCommon) WaitForStatus(secs int, statuses ...amqp.ClientStatus) amqp.ClientStatus {
+	// Wait timeout
+	timeout := time.Duration(secs) * time.Second
+
+	// Channel to notify when status
+	result := make(chan amqp.ClientStatus, 1)
+	go func() {
+		for t := time.Now(); time.Since(t) < timeout; time.Sleep(amqp.Poll) {
+			curStatus := a.Status()
+
+			if amqp.ClientStatusIn(curStatus, statuses...) {
+				result <- curStatus
+				return
+			}
+		}
+	}()
+
+	select {
+	case res := <-result:
+		return res
+	case <-time.After(time.Duration(secs) * time.Second):
+		return amqp.Timeout
+	}
+}

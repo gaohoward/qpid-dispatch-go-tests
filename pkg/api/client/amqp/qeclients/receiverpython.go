@@ -1,8 +1,7 @@
-package python
+package qeclients
 
 import (
 	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/api/client/amqp"
-	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/api/client/amqp/qeclients"
 	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/framework"
 	v1 "k8s.io/api/core/v1"
 	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -12,7 +11,7 @@ import (
 
 // AmqpPythonReceiver cli-proton-python-receiver
 type AmqpPythonReceiver struct {
-	qeclients.AmqpClientCommon
+	AmqpClientCommon
 }
 
 // AmqpPythonReceiverBuilder can be used to produce a cli-proton-python-receiver
@@ -22,7 +21,7 @@ type AmqpPythonReceiverBuilder struct {
 
 func (a *AmqpPythonReceiverBuilder) New(name string, data framework.ContextData, url string) amqp.ReceiverBuilder {
 	a.pythonReceiver = &AmqpPythonReceiver{
-		AmqpClientCommon: qeclients.AmqpClientCommon{
+		AmqpClientCommon: AmqpClientCommon{
 			Context: data,
 			Name:    name,
 			Url:     url,

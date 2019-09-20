@@ -1,8 +1,7 @@
-package python
+package qeclients
 
 import (
 	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/api/client/amqp"
-	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/api/client/amqp/qeclients"
 	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/framework"
 	v1 "k8s.io/api/core/v1"
 	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -12,7 +11,7 @@ import (
 
 // AmqpPythonSender amqp Client implementation
 type AmqpPythonSender struct {
-	qeclients.AmqpClientCommon
+	AmqpClientCommon
 	Content string
 }
 
@@ -23,11 +22,12 @@ type AmqpPythonSenderBuilder struct {
 
 func (a *AmqpPythonSenderBuilder) New(name string, data framework.ContextData, url string) amqp.SenderBuider {
 	a.pythonSender = &AmqpPythonSender{
-		AmqpClientCommon: qeclients.AmqpClientCommon{
-			Name:  name,
+		AmqpClientCommon: AmqpClientCommon{
+			Name:    name,
 			Context: data,
-			Url: url,
-			Mutex: sync.Mutex{},
+			Url:     url,
+			Mutex:   sync.Mutex{},
+			Timeout: amqp.TimeoutDefaultSecs,
 		},
 	}
 	return a

@@ -2,10 +2,13 @@ package amqp
 
 import (
 	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/framework"
+	"time"
 )
 
 const (
-	TimeoutInterruptSecs int = 60
+	TimeoutDefaultSecs   int           = 60
+	TimeoutInterruptSecs int           = 60
+	Poll                 time.Duration = time.Duration(2) * time.Second
 )
 
 type Client interface {
@@ -13,6 +16,7 @@ type Client interface {
 	Status() ClientStatus
 	Running() bool
 	Interrupt()
+	Wait() ClientStatus
 	Result() ResultData
 }
 
@@ -73,3 +77,13 @@ const (
 	Interrupted
 	Unknown
 )
+
+// ClientStatusIn returns true if the given "status" is present in the status slice
+func ClientStatusIn(status ClientStatus, statuses ...ClientStatus) bool {
+	for _, v := range statuses {
+		if v == status {
+			return true
+		}
+	}
+	return false
+}
