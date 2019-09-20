@@ -7,6 +7,7 @@ import (
 	. "github.com/onsi/ginkgo"
 )
 
+// Just to illustrate the structure for this test suite
 func TestRouterBroker(t *testing.T) {
 	test.Initialize()
 	RunSpecs(t, "RouterBroker Suite")

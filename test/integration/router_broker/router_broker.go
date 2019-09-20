@@ -5,6 +5,7 @@ import (
 	"github.com/onsi/gomega"
 )
 
+// Just to illustrate the structure for this test suite
 var _ = ginkgo.Describe("RouterBrokerDeployment", func() {
 
 	ginkgo.It("Deploys one interior router and one broker", func() {
