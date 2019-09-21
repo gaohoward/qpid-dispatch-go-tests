@@ -85,6 +85,8 @@ func (a *AmqpPythonSenderBuilder) Build() (amqp.Client, error) {
 						s.Content,
 						"--log-msgs",
 						"json",
+						"--on-release",
+						"retry",
 					},
 					ImagePullPolicy: "Always",
 				},

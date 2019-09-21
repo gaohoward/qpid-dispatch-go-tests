@@ -25,6 +25,7 @@ type AmqpClientCommon struct {
 	Pod         *v1.Pod
 	Timedout    bool
 	Interrupted bool
+	finalResult *amqp.ResultData
 	Mutex       sync.Mutex
 }
 
@@ -83,6 +84,11 @@ func (a *AmqpClientCommon) Interrupt() {
 
 func (a *AmqpClientCommon) Result() amqp.ResultData {
 
+	// If client is not longer running and finalResult already set, return it
+	if a.finalResult != nil {
+		return *a.finalResult
+	}
+
 	request := a.Context.Clients.KubeClient.CoreV1().Pods(a.Context.Namespace).GetLogs(a.Pod.Name, &v1.PodLogOptions{})
 	logs, err := request.Stream()
 	gomega.Expect(err).To(gomega.BeNil())
@@ -122,6 +128,13 @@ func (a *AmqpClientCommon) Result() amqp.ResultData {
 	}
 	for _, message := range messages {
 		result.Messages = append(result.Messages, message.ToMessage())
+	}
+
+	// Locking to set finalResults
+	a.Mutex.Lock()
+	defer a.Mutex.Unlock()
+	if !a.Running() && a.finalResult == nil {
+		a.finalResult = &result
 	}
 
 	return result
