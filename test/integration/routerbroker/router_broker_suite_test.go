@@ -1,4 +1,4 @@
-package router_broker_test
+package routerbroker_test
 
 import (
 	"github.com/fgiorgetti/qpid-dispatch-go-tests/test"

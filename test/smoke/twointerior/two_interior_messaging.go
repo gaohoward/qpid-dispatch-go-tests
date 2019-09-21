@@ -1,4 +1,4 @@
-package two_interior
+package twointerior
 
 import (
 	"fmt"

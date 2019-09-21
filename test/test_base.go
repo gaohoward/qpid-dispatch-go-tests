@@ -8,7 +8,15 @@ import (
 )
 
 // Initialize Ginkgo and parse command line arguments
+// Ginkgo needs flag parser to be defined in the init() method
+// which only gets called once.
+// Although it is not doing anything, by calling it, it causes the "init()" to be invoked by Ginkgo,
+// So it is important to call it.
 func Initialize() {
+	// This method here can be used to perform other common initialization for other suites.
+}
+
+func init() {
 	framework.HandleFlags()
 	gomega.RegisterFailHandler(ginkgowrapper.Fail)
 }

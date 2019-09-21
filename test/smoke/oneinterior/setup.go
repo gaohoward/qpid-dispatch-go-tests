@@ -1,4 +1,4 @@
-package one_interior
+package oneinterior
 
 import (
 	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/framework"
@@ -17,7 +17,7 @@ var (
 	IcSpec    *v1alpha1.InterconnectSpec
 )
 
-// Create the Framework instance to be used one_interior tests
+// Create the Framework instance to be used oneinterior tests
 var _ = ginkgo.BeforeEach(func() {
 	// Setup the topology
 	Framework = framework.NewFramework("one-interior", framework.TestContext.GetContexts()[0])

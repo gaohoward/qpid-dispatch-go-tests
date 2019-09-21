@@ -1,4 +1,4 @@
-package two_interior_test
+package twointerior_test
 
 import (
 	"github.com/fgiorgetti/qpid-dispatch-go-tests/test"
