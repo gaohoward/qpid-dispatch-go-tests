@@ -31,8 +31,6 @@ import (
 
 	"k8s.io/client-go/tools/clientcmd"
 	uexec "k8s.io/utils/exec"
-
-	//"github.com/onsi/gomega"
 )
 
 const (

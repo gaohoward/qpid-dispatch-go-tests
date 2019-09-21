@@ -23,6 +23,7 @@ type CleanupActionHandle *int
 
 // Action type to be enqueued
 type ActionType int
+
 const (
 	AfterEach ActionType = iota
 	AfterSuite
