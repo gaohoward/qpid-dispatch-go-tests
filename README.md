@@ -6,9 +6,9 @@ Qpid Dispatch Go Test suite for k8s.
 Propose a sample test suite that can be used to create test scenarios that run on
 Kubernetes and can be also used to run in other platforms like OpenShift.
  
-This initial sample defines a structure for organizing test suites (ideally "pkg" will be
-kept in a separate repository from the "test" suites), a framework that is capable of
-deploying operators (improved version of qdr-operator e2e test framework), use multiple
+This initial sample defines a structure for organizing test suites (ideally _pkg_ will be
+kept in a separate repository from the _test_ suites), a framework that is capable of
+deploying operators (modified version of qdr-operator e2e test framework), use multiple
 kubernetes contexts, run tests in parallel, setting up and tearing down namespaces, run
 client applications.
 
@@ -19,7 +19,7 @@ You must have a running cluster and you must be logged in to your cluster using
 an account that has been granted with cluster admin role (because test suite will
 create and remove cluster level resources, like namespaces, roles and CRDs).
 
-The KUBECONFIG variale must be set and referring to a kubernetes config that has
+The `KUBECONFIG` variable must be set and referring to a kubernetes config that has
 the credentials and contexts related with the cluster to be used.
 
 **_Note:_** If no context is specified, the framework will use the current-context
@@ -140,7 +140,7 @@ by the instance deployed at "Framework 1".
    Similarly to the other suite, this test validates the number of router nodes available in the network,
    by parsing results from `qdmanage`.
    
-   Although in this suite, it expects **two** routers to show up in the list.
+   Although, in this suite, it expects **two** routers to show up in the list.
    
 * **Exchanges anycast messages using multiple clients against the distributed mesh**
 

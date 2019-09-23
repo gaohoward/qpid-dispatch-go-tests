@@ -19,6 +19,8 @@ import (
 // by Ginkgo and so, within your test suites you have to explicitly invoke this method
 // as it will run your specs and setup the appropriate reporters (if any requested).
 // This method MUST be called (otherwise the init() might not be executed).
+// The uniqueId is used to help composing the generated JUnit file name (when --report-dir
+// is specified when running your tests).
 func Initialize(t *testing.T, uniqueId string, description string) {
 	// If any ginkgoReporter has been defined, use them.
 	if framework.TestContext.ReportDir != "" {
