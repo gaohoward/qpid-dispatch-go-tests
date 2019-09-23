@@ -110,7 +110,6 @@ func RegisterFlags() {
 func HandleFlags() {
 	RegisterFlags()
 	flag.Parse()
-	fmt.Printf("\n\n\n\nCONTEXT = %v\n\n\n", TestContext)
 }
 
 func createKubeConfig(clientCfg *restclient.Config) *clientcmdapi.Config {

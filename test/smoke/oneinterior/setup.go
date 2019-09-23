@@ -51,7 +51,8 @@ var _ = ginkgo.JustBeforeEach(func() {
 	gomega.Expect(err).To(gomega.BeNil())
 })
 
-// After each test completes, run cleanup actions to save resources
+// After each test completes, run cleanup actions to save resources (otherwise resources will remain till
+// all specs from this suite are done.
 var _ = ginkgo.AfterEach(func() {
 	Framework.AfterEach()
 })

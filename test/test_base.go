@@ -1,24 +1,58 @@
 package test
 
 import (
+	"fmt"
 	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/framework"
 	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/framework/ginkgowrapper"
 	"github.com/onsi/ginkgo"
+	"github.com/onsi/ginkgo/config"
+	"github.com/onsi/ginkgo/reporters"
 	"github.com/onsi/gomega"
+	"k8s.io/klog"
+	"os"
+	"path"
+	"testing"
 )
 
-// Initialize Ginkgo and parse command line arguments
-// Ginkgo needs flag parser to be defined in the init() method
-// which only gets called once.
-// Although it is not doing anything, by calling it, it causes the "init()" to be invoked by Ginkgo,
-// So it is important to call it.
-func Initialize() {
-	// This method here can be used to perform other common initialization for other suites.
+
+// Initialize once this file is imported, the "init()" method will be called automatically
+// by Ginkgo and so, within your test suites you have to explicitly invoke this method
+// as it will run your specs and setup the appropriate reporters (if any requested).
+// This method MUST be called (otherwise the init() might not be executed).
+func Initialize(t *testing.T, uniqueId string, description string) {
+	// If any ginkgoReporter has been defined, use them.
+	if framework.TestContext.ReportDir != "" {
+		ginkgo.RunSpecsWithDefaultAndCustomReporters(t, description, generateReporter(uniqueId))
+	} else {
+		ginkgo.RunSpecs(t, description)
+	}
 }
 
+// Initialize Ginkgo and parse command line arguments
 func init() {
 	framework.HandleFlags()
 	gomega.RegisterFailHandler(ginkgowrapper.Fail)
+}
+
+// generateReporter returns a slice of ginkgo.Reporter if reportDir has been provided
+func generateReporter(uniqueId string) []ginkgo.Reporter {
+	var ginkgoReporters []ginkgo.Reporter
+
+	// If report dir specified, create it
+	if framework.TestContext.ReportDir != "" {
+		if err := os.MkdirAll(framework.TestContext.ReportDir, 0755); err != nil {
+			klog.Errorf("Failed creating report directory: %v", err)
+		} else {
+			ginkgoReporters = append(ginkgoReporters, reporters.NewJUnitReporter(
+				path.Join(framework.TestContext.ReportDir,
+					fmt.Sprintf("junit_%v%s%02d.xml",
+						framework.TestContext.ReportPrefix,
+						uniqueId,
+						config.GinkgoConfig.ParallelNode))))
+		}
+	}
+
+	return ginkgoReporters
 }
 
 // Before suite validation setup (happens only once per test suite)
