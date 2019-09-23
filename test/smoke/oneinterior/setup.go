@@ -7,13 +7,16 @@ import (
 	"github.com/onsi/gomega"
 )
 
+// Constants available for all test specs related with the One Interior topology
 const (
 	DeployName = "one-interior"
 	DeploySize = 1
 )
 
 var (
+	// Framework instance that holds the generated resources
 	Framework *framework.Framework
+	// IcSpec Specification for the Interconnect resource to be created
 	IcSpec    *v1alpha1.InterconnectSpec
 )
 

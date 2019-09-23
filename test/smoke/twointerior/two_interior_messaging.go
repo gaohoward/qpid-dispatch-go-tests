@@ -95,10 +95,11 @@ func startClients(clients []amqp.Client) {
 
 // createReceivers returns a slice of receiver clients ready to be deployed
 func createReceivers(context framework.ContextData, address string, deploymentName string, number int) []amqp.Client {
-	var receivers []amqp.Client = make([]amqp.Client, 0)
+	var receivers []amqp.Client
+	receivers = make([]amqp.Client, 0)
 	for i := 0; i < number; i++ {
 		builder := qeclients.NewReceiverBuilder(qeclients.Python)
-		url := getUrl(address, deploymentName, context)
+		url := getURL(address, deploymentName, context)
 		builder.New("receiver"+strconv.Itoa(i), context, url)
 		builder.Timeout(amqp.TimeoutDefaultSecs)
 		builder.Messages(messageCount)
@@ -112,11 +113,12 @@ func createReceivers(context framework.ContextData, address string, deploymentNa
 
 // createSenders returns a slice of sender clients ready to be deployed
 func createSenders(context framework.ContextData, address string, deploymentName string, number int) []amqp.Client {
-	var senders []amqp.Client = make([]amqp.Client, 0)
+	var senders []amqp.Client
+	senders = make([]amqp.Client, 0)
 	for i := 0; i < number; i++ {
 		// Create a builder for the sender
 		builder := qeclients.NewSenderBuilder(qeclients.Python)
-		url := getUrl(address, deploymentName, context)
+		url := getURL(address, deploymentName, context)
 		builder.New("sender-"+strconv.Itoa(i+1), context, url)
 		builder.Timeout(amqp.TimeoutDefaultSecs)
 		builder.Messages(messageCount)
@@ -129,7 +131,7 @@ func createSenders(context framework.ContextData, address string, deploymentName
 	return senders
 }
 
-// getUrl returns an amqp url based on provided deployment name and context
-func getUrl(address string, deploymentName string, context framework.ContextData) string {
+// getURL returns an amqp url based on provided deployment name and context
+func getURL(address string, deploymentName string, context framework.ContextData) string {
 	return fmt.Sprintf("amqp://%s.%s.svc.cluster.local/%s", deploymentName, context.Namespace, address)
 }

@@ -8,12 +8,17 @@ import (
 )
 
 var (
+	// FrameworkQdrOne the instance of the framework that holds deployment of QdrOne
 	FrameworkQdrOne *framework.Framework
+	// FrameworkQdrTwo the instance of the framework that holds deployment of QdrTwo
 	FrameworkQdrTwo *framework.Framework
+	// QdrOneSpec specification for Interconnect deployed against framework one
 	QdrOneSpec      *v1alpha1.InterconnectSpec
+	// QdrTwoSpec specification for Interconnect deployed against framework two
 	QdrTwoSpec      *v1alpha1.InterconnectSpec
 )
 
+// Constants that defines common information for Interconnects deployed against the different namespaces
 const (
 	QdrOneName = "qdrone"
 	QdrTwoName = "qdrtwo"
