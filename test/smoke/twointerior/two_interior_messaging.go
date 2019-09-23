@@ -39,7 +39,7 @@ var _ = ginkgo.Describe("TwoInteriorMessaging", func() {
 		receiversCtx2 = createReceivers(*ctx2, address, QdrTwoName, numReceivers)
 	})
 
-	ginkgo.FIt("Exchanges anycast messages using multiple clients against the distributed mesh", func() {
+	ginkgo.It("Exchanges anycast messages using multiple clients against the distributed mesh", func() {
 		ginkgo.By("Creating 2 receivers on each cluster")
 		// Starting receivers
 		startClients(receiversCtx1)
