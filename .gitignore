@@ -16,3 +16,6 @@ ginkgo-node-*.log
 
 # IDE files
 .idea/
+
+bin
+
